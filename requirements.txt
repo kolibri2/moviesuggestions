@@ -1,4 +1,10 @@
 #pip install -r requirements.txt
-fastapi[standard]
-typing
-pandas
+fastapi[standard]~=0.115.12
+typing~=3.7.4.3
+pandas~=2.2.3
+numpy~=2.2.4
+scipy~=1.15.2
+scikit-learn~=1.6.1
+torch~=2.6.0
+transformers~=4.50.3
+starlette~=0.46.1
