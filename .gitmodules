@@ -1,0 +1,3 @@
+[submodule "NPEET"]
+	path = NPEET
+	url = https://github.com/gregversteeg/NPEET.git

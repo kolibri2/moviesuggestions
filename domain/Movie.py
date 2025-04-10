@@ -5,5 +5,6 @@ from dataclasses import dataclass
 class Movie:
     movie_id: int
     title: str
-    genres: str
+    overview: str #plot description
+    internal_id: int
 
