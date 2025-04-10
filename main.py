@@ -9,28 +9,32 @@ from starlette.responses import HTMLResponse
 
 from domain.Movie import Movie
 from repositories.MovieRepository import InMemoryMovieRepository, SQLMovieRepository
+from repositories.SimilarityRepository import (
+    SimilarityRepository,
+    SQLSimilarityRepository,
+)
 from services.MovieService import MovieService
 from utils import init_db, get_movie_repo, get_movie_service
 
 app = FastAPI()
 MOVIE_CSV_PATH = "Data/archive/movies_metadata.csv"
 DB_PATH = "Databases/movies.db"
-#movie_service = MovieService(InMemoryMovieRepository(MOVIE_CSV_PATH))
-#movie_repository = InMemoryMovieRepository(MOVIE_CSV_PATH)
+# movie_service = MovieService(InMemoryMovieRepository(MOVIE_CSV_PATH))
+# movie_repository = InMemoryMovieRepository(MOVIE_CSV_PATH)
 
 
-repo = InMemoryMovieRepository(MOVIE_CSV_PATH)
-#repo = SQLMovieRepository(MOVIE_CSV_PATH, num_movies=100, db_path=DB_PATH)
-movie_service = MovieService(repo)
-print(movie_service.get_all_movies()[0])
-movie_service.calculate_pairwise_similarity()
+# repo = InMemoryMovieRepository(MOVIE_CSV_PATH)
+movie_repo = SQLMovieRepository(MOVIE_CSV_PATH, num_movies=100, db_path=DB_PATH)
+similarity_repo = SQLSimilarityRepository(DB_PATH)
+movie_service = MovieService(movie_repo, similarity_repo)
+# movie_service.calculate_pairwise_similarity()
+
+# print(len(movie_service.get_all_movies()))
 
 
-#@app.on_event("startup")
+# @app.on_event("startup")
 def startup_event():
     init_db(MOVIE_CSV_PATH, DB_PATH)
-
-
 
 
 @app.get("/all_movies")
@@ -43,12 +47,15 @@ def read_item(item_id: int, q: Union[str, None] = None, f: Union[str, None] = No
     return {"item_id": item_id, "q": q, "f": f}
 
 
-@app.get("/movies/{movie_id}")
+# @app.get("/movies/{movie_id}")
 def get_movie(movie_id: int):
-    return movie_service.get_movie_by_id(movie_id).title, movie_service.get_movie_by_id(movie_id).overview
+    return (
+        movie_service.get_movie_by_id(movie_id).title,
+        movie_service.get_movie_by_id(movie_id).overview,
+    )
 
 
-@app.get("/simil/{movie_internal_id}", response_class=HTMLResponse)
+@app.get("/similarity/{movie_internal_id}", response_class=HTMLResponse)
 def get_similar_movies_by_id(movie_internal_id: int):
     similar_ids = movie_service.get_most_similar_by_id(movie_internal_id)
     movies = movie_service.get_multiple_movies_by_id(similar_ids)
@@ -86,7 +93,9 @@ def get_all_movies(service: MovieService = Depends(get_movie_service)):
 
 
 @app.get("/simil/{movie_internal_id}")
-def get_similar_movies_by_id(movie_internal_id: int, service: MovieService = Depends(get_movie_service)):
+def get_similar_movies_by_id(
+    movie_internal_id: int, service: MovieService = Depends(get_movie_service)
+):
     # Adjust your call according to the implementation of your service.
     overview = service.get_overview_by_id(movie_internal_id)
     return {"overview": overview}
