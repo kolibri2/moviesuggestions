@@ -14,6 +14,7 @@ from repositories.SimilarityRepository import (
     SQLSimilarityRepository,
 )
 from services.MovieService import MovieService
+from services.SimilarityService import SimilarityService
 from utils import init_db, get_movie_repo, get_movie_service
 
 app = FastAPI()
@@ -24,21 +25,28 @@ DB_PATH = "Databases/movies.db"
 
 
 # repo = InMemoryMovieRepository(MOVIE_CSV_PATH)
-movie_repo = SQLMovieRepository(MOVIE_CSV_PATH, num_movies=100, db_path=DB_PATH)
+movie_repo = SQLMovieRepository(MOVIE_CSV_PATH, num_movies=1000, db_path=DB_PATH)
 similarity_repo = SQLSimilarityRepository(DB_PATH)
-movie_service = MovieService(movie_repo, similarity_repo)
-# movie_service.calculate_pairwise_similarity()
+mov_service = MovieService(movie_repo)
+sim_service = SimilarityService(similarity_repo, mov_service)
+
+
+# sim_service.calculate_pairwise_similarity(num_movies=1000)
+
 
 # print(len(movie_service.get_all_movies()))
+def get_movie_service() -> MovieService:
+    return mov_service
 
 
-# @app.on_event("startup")
-def startup_event():
-    init_db(MOVIE_CSV_PATH, DB_PATH)
+def get_similarity_service() -> SimilarityService:
+    return sim_service
 
 
 @app.get("/all_movies")
-def get_all_movies():
+def get_all_movies(
+    movie_service: MovieService = Depends(get_movie_service),
+):
     return movie_service.get_all_movies()
 
 
@@ -47,55 +55,25 @@ def read_item(item_id: int, q: Union[str, None] = None, f: Union[str, None] = No
     return {"item_id": item_id, "q": q, "f": f}
 
 
-# @app.get("/movies/{movie_id}")
-def get_movie(movie_id: int):
-    return (
-        movie_service.get_movie_by_id(movie_id).title,
-        movie_service.get_movie_by_id(movie_id).overview,
-    )
-
-
-@app.get("/similarity/{movie_internal_id}", response_class=HTMLResponse)
-def get_similar_movies_by_id(movie_internal_id: int):
-    similar_ids = movie_service.get_most_similar_by_id(movie_internal_id)
-    movies = movie_service.get_multiple_movies_by_id(similar_ids)
-
-    # Convert dataclass instances to dictionaries.
-    movies_dict = [asdict(movie) for movie in movies]
-
-    # Separate the first element as the "input movie" and the rest as "similar movies"
-    if movies_dict:
-        output = {
-            "input_movie": movies_dict[0],
-            "similar_movies": movies_dict[1:],
-        }
-    else:
-        output = {"input_movie": None, "similar_movies": []}
-
-    pretty_json = json.dumps(output, indent=4, sort_keys=True)
-
-    # Wrap the JSON string in <pre> tags so the formatting shows in the browser
-    html_content = f"<pre>{pretty_json}</pre>"
-    return HTMLResponse(content=html_content)
-
-
 @app.get("/movies/{movie_id}")
-def get_movie(movie_id: int, service: MovieService = Depends(get_movie_service)):
-    movie = service.get_movie_by_id(movie_id)
+def get_movie(movie_id: int, movie_service: MovieService = Depends(get_movie_service)):
+    movie = movie_service.get_movie_by_id(movie_id)
     return {"title": movie.title, "overview": movie.overview}
 
 
 @app.get("/all_movies")
-def get_all_movies(service: MovieService = Depends(get_movie_service)):
-    movies = service.get_all_movies()
+def get_all_movies(movie_service: MovieService = Depends(get_movie_service)):
+    movies = movie_service.get_all_movies()
     # Convert your movies to a serializable format if necessary.
     return movies
 
 
-@app.get("/simil/{movie_internal_id}")
+@app.get("/similarity/{movie_internal_id}")
 def get_similar_movies_by_id(
-    movie_internal_id: int, service: MovieService = Depends(get_movie_service)
+    movie_internal_id: int,
+    movie_service: MovieService = Depends(get_movie_service),
+    similarity_service: SimilarityService = Depends(get_similarity_service),
 ):
-    # Adjust your call according to the implementation of your service.
-    overview = service.get_overview_by_id(movie_internal_id)
-    return {"overview": overview}
+    similar_movie_ids = similarity_service.get_similar_movies_by_id(movie_internal_id)
+
+    return movie_service.get_multiple_movies_by_id(similar_movie_ids)
