@@ -1,6 +1,6 @@
 import json
 from dataclasses import asdict
-from typing import Union, List
+from typing import Union, List, Generator
 import time
 
 from fastapi import FastAPI, Depends
@@ -13,8 +13,13 @@ from repositories.SimilarityRepository import (
     SimilarityRepository,
     SQLSimilarityRepository,
 )
+from repositories.UserMoviePreferenceRepository import SQLUserMoviePreferenceRepository
+from repositories.UserRepository import SQLUserRepository
 from services.MovieService import MovieService
 from services.SimilarityService import SimilarityService
+from services.UserMoviePreferenceService import UserMoviePreferenceService
+from services.UserService import UserService
+from db import get_connection
 from utils import init_db, get_movie_repo, get_movie_service
 
 app = FastAPI()
@@ -30,17 +35,84 @@ similarity_repo = SQLSimilarityRepository(DB_PATH)
 mov_service = MovieService(movie_repo)
 sim_service = SimilarityService(similarity_repo, mov_service)
 
+user_repo = SQLUserRepository(DB_PATH)
+user_service = UserService(user_repo)
+
 
 # sim_service.calculate_pairwise_similarity(num_movies=1000)
 
 
 # print(len(movie_service.get_all_movies()))
+# def get_movie_service(
+#     conn=Depends(get_connection),
+# ) -> Generator[MovieService, None, None]:
+#     repo = SQLMovieRepository(conn)
+#     svc = SimilarityService(repo, mov_service)
+#     yield svc
+#
+#
+# def get_similarity_service(
+#     conn=Depends(get_connection),
+# ) -> Generator[SimilarityService, None, None]:
+#     repo = SQLSimilarityRepository(conn)
+#     svc = SimilarityService(repo)
+#     yield svc
+
+
 def get_movie_service() -> MovieService:
     return mov_service
 
 
 def get_similarity_service() -> SimilarityService:
     return sim_service
+
+
+def get_user_service(
+    conn=Depends(get_connection),
+) -> Generator[UserService, None, None]:
+    repo = SQLUserRepository(conn)  # repo takes a connection, not a path
+    svc = UserService(repo)
+    yield svc
+
+
+def get_user_movie_service(
+    conn=Depends(get_connection),
+) -> Generator[UserMoviePreferenceService, None, None]:
+    repo = SQLUserMoviePreferenceRepository(conn)
+    svc = UserMoviePreferenceService(repo)
+    yield svc
+
+
+@app.post("/users/")
+def create_user(username: str, svc: UserService = Depends(get_user_service)):
+
+    user_added_bool = svc.add_user()
+    if user_added_bool:
+        return f"User {username} added successfully"
+    else:
+        return f"Failed adding user {username}."
+
+
+@app.post("/rate_movie")
+def rate_movie(
+    username: str,
+    movie_id: int,
+    movie_opinion: int,  # 0 for dislike, 1 for like
+    user_svc: UserService = Depends(get_user_service),
+    pref_svc: UserMoviePreferenceService = Depends(get_user_movie_service),
+):
+    user_id = user_svc.get_user_id_by_username(username)
+
+    if user_id is None:
+        return f"User {username} not found."
+    else:
+        movie_title = pref_svc.add_user_preference(user_id, movie_id, movie_opinion)
+        if movie_opinion:
+            return f"User {username} registered as liking the movie {movie_title[0]}."
+        if movie_opinion == 0:
+            return (
+                f"User {username} registered as disliking the movie {movie_title[0]}."
+            )
 
 
 @app.get("/all_movies")

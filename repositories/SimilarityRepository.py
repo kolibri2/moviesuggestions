@@ -58,7 +58,7 @@ class SQLSimilarityRepository(AbstractSimilarityRepository):
     FOREIGN KEY (movie_2_ref) REFERENCES movies (movie_key),
     UNIQUE (movie_1_ref, movie_2_ref)
 
-)
+);
 
 """
         )

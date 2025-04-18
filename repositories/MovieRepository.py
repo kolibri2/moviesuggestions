@@ -65,13 +65,13 @@ class SQLMovieRepository(AbstractMovieRepository):
         self.conn = sqlite3.connect(db_path, check_same_thread=False)
         self._create_movies_table()
 
-        is_new_db = not os.path.exists(db_path)
-        if is_new_db:
-            self.reset_autoincrement_counter()
-            print("loading from csv")
-            self._load_movies_from_csv(movies_csv_path, num_movies)
-        else:
-            print("db already exists")
+        # is_new_db = not os.path.exists(db_path)
+        # if is_new_db:
+        #     self.reset_autoincrement_counter()
+        #     print("loading from csv")
+        #     self._load_movies_from_csv(movies_csv_path, num_movies)
+        # else:
+        #     print("db already exists")
 
     def _create_movies_table(self):
         self.reset_autoincrement_counter()
