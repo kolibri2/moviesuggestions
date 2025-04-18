@@ -4,7 +4,7 @@ from sklearn.decomposition import PCA
 from transformers import DistilBertTokenizer, DistilBertModel
 import torch.nn.functional as F
 from repositories import SimilarityRepository, MovieRepository
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from services.MovieService import MovieService
 
@@ -49,12 +49,21 @@ class SimilarityService:
         except Exception as e:
             raise RuntimeError(f"Could not initiate model: {e}")
 
-    def get_embeddings(self, texts: List[str]) -> torch.Tensor:
+    def get_embeddings(self, texts: Union[str, List[str]]) -> torch.Tensor:
         """
         Compute embeddings for a list of texts.
         :param texts: List of texts to compute embeddings for.
         :return: Embeddings for a list of texts.
         """
+
+        # Normalize input to list
+        single = False
+        if isinstance(texts, str):
+            texts = [texts]
+            single = True
+
+        if self.tokenizer is None or self.model is None:
+            self.initiate_llm()
 
         # Tokenize input texts and compute embeddings using the model
         inputs = self.tokenizer(
@@ -103,8 +112,6 @@ class SimilarityService:
         movie repository.
         """
         # 1. Ensure your model is initiated
-        if self.tokenizer is None or self.model is None:
-            self.initiate_llm()
 
         # 2. fetch the movie ids in the repo, then fetch all the corresponding descriptions.
         movie_internal_ids = [
