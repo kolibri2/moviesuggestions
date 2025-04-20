@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 from typing import Tuple, List
 
@@ -39,9 +38,6 @@ class RecommendationService:
 
         # 3) compute similarity scores
         scores = movie_embeddings @ user_emb  # (N,)
-
-        #unique_scores = torch.unique(scores)
-        #print("unique scores:", unique_scores)
 
         # 4) remove movies the user has already seen
         unseen_ids, unseen_scores = self._filter_seen(movie_ids, scores, user_id)

@@ -16,10 +16,6 @@ class AbstractUserMoviePreferenceRepository(ABC):
 
 
 class SQLUserMoviePreferenceRepository(AbstractUserMoviePreferenceRepository):
-    # def __init__(self, db_path: str):
-    # self.conn = sqlite3.connect(db_path)
-    # self.create_user_movie_table()
-
     def __init__(self, source: Union[str, sqlite3.Connection]):
         if isinstance(source, sqlite3.Connection):
             self.conn = source  # injected connection
