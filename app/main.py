@@ -27,7 +27,6 @@ def init_new_db(conn: sqlite3.Connection):
     movie_service = MovieService(movie_repo)
     similarity_repo = SQLSimilarityRepository(source=conn)
     sim_service = SimilarityService(similarity_repo, movie_service)
-    sim_service.calculate_pairwise_similarity()
 
 
 @app.on_event("startup")
@@ -37,12 +36,13 @@ async def on_startup():
     conn.row_factory = sqlite3.Row
 
     if first_time:
+        print("Creating db and reading movies from csv...")
         os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
         with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
             conn.executescript(f.read())
         init_new_db(conn)
 
-    print("started")
+    print("App is running.")
 
 
 @app.post("/users/")
@@ -114,11 +114,6 @@ def get_all_movies(
     return movie_service.get_all_movies()
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None, f: Union[str, None] = None):
-    return {"item_id": item_id, "q": q, "f": f}
-
-
 @app.get("/movies/{movie_id}")
 def get_movie(movie_id: int, movie_service: MovieService = Depends(get_movie_service)):
     movie = movie_service.get_movie_by_id(movie_id)
@@ -130,14 +125,3 @@ def get_all_movies(movie_service: MovieService = Depends(get_movie_service)):
     movies = movie_service.get_all_movies()
     # Convert your movies to a serializable format if necessary.
     return movies
-
-
-#@app.get("/similarity/{movie_internal_id}")
-def get_similar_movies_by_id(
-        movie_internal_id: int,
-        movie_service: MovieService = Depends(get_movie_service),
-        similarity_service: SimilarityService = Depends(get_similarity_service),
-):
-    similar_movie_ids = similarity_service.get_similar_movies_by_id(movie_internal_id)
-
-    return movie_service.get_multiple_movies_by_id(similar_movie_ids)

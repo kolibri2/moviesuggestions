@@ -15,6 +15,8 @@ from app.services.UserMoviePreferenceService import UserMoviePreferenceService
 from app.services.UserService import UserService
 
 MOVIE_CSV_PATH = "../Data/archive/movies_metadata.csv"
+
+
 def get_movie_service(
         conn=Depends(get_connection),
 ) -> Generator[MovieService, None, None]:
