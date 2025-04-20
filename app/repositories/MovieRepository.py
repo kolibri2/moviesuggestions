@@ -2,9 +2,11 @@ import os
 import sqlite3
 import time
 from abc import ABC, abstractmethod
+from typing import Union
+
 import pandas as pd
 
-from domain.Movie import Movie
+from app.domain.Movie import Movie
 
 
 class AbstractMovieRepository(ABC):
@@ -24,9 +26,9 @@ class InMemoryMovieRepository(AbstractMovieRepository):
         self.movies = []
         movie_key = 0
         for movie_id, title, overview in zip(
-            movies_df["id"].tolist(),
-            movies_df["title"].tolist(),
-            movies_df["overview"].tolist(),
+                movies_df["id"].tolist(),
+                movies_df["title"].tolist(),
+                movies_df["overview"].tolist(),
         ):
             try:
                 if type(overview) is str:
@@ -53,28 +55,36 @@ class InMemoryMovieRepository(AbstractMovieRepository):
 class SQLMovieRepository(AbstractMovieRepository):
 
     def __init__(
-        self,
-        movies_csv_path: str,
-        num_movies: int,
-        db_path: str = ":memory",
+            self,
+            movies_csv_path: str,
+            source: Union[str, sqlite3.Connection],
+            num_movies: int = 100,
+            is_new_db: bool = False,
+
     ):
         """
 
         :type num_movies: object
         """
-        self.conn = sqlite3.connect(db_path, check_same_thread=False)
+        if isinstance(source, sqlite3.Connection):
+            self.conn = source  # injected connection
+        else:
+            # Fallback: open a new one (old behaviour)
+            self.conn = sqlite3.connect(
+                source,
+                detect_types=sqlite3.PARSE_DECLTYPES,
+                check_same_thread=False,  # so background tasks won’t crash
+            )
+
         self._create_movies_table()
 
-        # is_new_db = not os.path.exists(db_path)
-        # if is_new_db:
-        #     self.reset_autoincrement_counter()
-        #     print("loading from csv")
-        #     self._load_movies_from_csv(movies_csv_path, num_movies)
-        # else:
-        #     print("db already exists")
+        if is_new_db:
+            self.reset_autoincrement_counter()
+            print("loading from csv")
+            self._load_movies_from_csv(movies_csv_path, num_movies)
 
     def _create_movies_table(self):
-        self.reset_autoincrement_counter()
+
         cursor = self.conn.cursor()
 
         cursor.execute(
@@ -87,7 +97,7 @@ class SQLMovieRepository(AbstractMovieRepository):
         """
         )
         self.conn.commit()
-
+        self.reset_autoincrement_counter()
     def close(self):
         self.conn.close()
 
@@ -100,9 +110,9 @@ class SQLMovieRepository(AbstractMovieRepository):
 
         movies_added = 0
         for movie_id, title, overview in zip(
-            movies_df["id"].tolist(),
-            movies_df["title"].tolist(),
-            movies_df["overview"].tolist(),
+                movies_df["id"].tolist(),
+                movies_df["title"].tolist(),
+                movies_df["overview"].tolist(),
         ):
             if isinstance(overview, str):
                 self._insert_movie(

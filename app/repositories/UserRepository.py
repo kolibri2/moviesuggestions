@@ -5,7 +5,7 @@ from typing import Union
 
 import numpy as np
 
-from domain.User import User
+from app.domain.User import User
 
 
 class AbstractUserRepository(ABC):
@@ -91,7 +91,7 @@ class SQLUserRepository(AbstractUserRepository):
         except sqlite3.IntegrityError:
             # this fires if username already exists
             self.conn.rollback()
-            print(f"⚠️ User “{username}” already exists!")
+            print(f"User “{username}” already exists!")
             return False
 
     def update_embedding_vector(self, user_id: int, embedding_vector):
