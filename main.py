@@ -38,8 +38,6 @@ pref_svc = UserMoviePreferenceService(usr_movie_repo)
 
 rec_svc = RecommendationService(user_service, pref_svc, sim_service, mov_service)
 
-user_id = user_service.get_user_id_by_username("john")
-
 
 # sim_service.calculate_pairwise_similarity(num_movies=1000)
 
@@ -85,13 +83,26 @@ def get_user_movie_service(
     yield svc
 
 
-def get_recommendation_service() -> Generator[RecommendationService, None, None]:
+def get_recommendation_service(
+    conn=Depends(get_connection()),
+) -> Generator[RecommendationService, None, None]:
+    pref_repo = SQLUserMoviePreferenceRepository(conn)
+    pref_svc = UserMoviePreferenceService(pref_repo)
+
+    user_repo = SQLUserRepository(conn)
+    user_svc = UserService(user_repo)
+
+    movie_repo = SQLMovieRepository(conn)
+    movie_svc = MovieService(movie_repo)
+
+    sim_repo = SQLSimilarityRepository(conn)
+    sim_svc = SimilarityService(user_svc, sim_repo)
     return rec_svc
 
 
 @app.post("/users/")
 def create_user(username: str, svc: UserService = Depends(get_user_service)):
-    user_added_bool = svc.add_user()
+    user_added_bool = svc.add_user(username)
     if user_added_bool:
         return f"User {username} added successfully"
     else:
@@ -111,6 +122,7 @@ def rate_movie(
 
     if user_id is None:
         return f"User {username} not found."
+
     else:
         movie_title = pref_svc.add_user_preference(user_id, movie_id, movie_opinion)
 
