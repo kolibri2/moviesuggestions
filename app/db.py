@@ -1,6 +1,6 @@
 import sqlite3
 
-DB_PATH = "Databases/movies.db"
+DB_PATH = "../Databases/moviesuggestion.db"
 
 
 def get_connection():

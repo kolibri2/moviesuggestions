@@ -3,10 +3,10 @@ import torch
 from sklearn.decomposition import PCA
 from transformers import DistilBertTokenizer, DistilBertModel
 import torch.nn.functional as F
-from repositories import SimilarityRepository, MovieRepository
+from app.repositories import SimilarityRepository, MovieRepository
 from typing import List, Tuple, Union
 
-from services.MovieService import MovieService
+from app.services.MovieService import MovieService
 
 
 class SimilarityService:

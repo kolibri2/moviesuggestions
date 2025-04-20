@@ -1,9 +1,9 @@
 from typing import List
 import time
 
-from domain.Movie import Movie
-from repositories.MovieRepository import AbstractMovieRepository
-from repositories.SimilarityRepository import AbstractSimilarityRepository
+from app.domain.Movie import Movie
+
+from app.repositories.MovieRepository import AbstractMovieRepository
 
 
 class MovieService:
@@ -12,9 +12,9 @@ class MovieService:
     """
 
     def __init__(
-        self,
-        movie_repository: AbstractMovieRepository,
-        # similarity_repository: AbstractSimilarityRepository,
+            self,
+            movie_repository: AbstractMovieRepository,
+
     ):
         self.movie_repository = movie_repository
 

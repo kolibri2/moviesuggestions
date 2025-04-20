@@ -2,11 +2,11 @@ import numpy as np
 import torch
 from typing import Tuple, List
 
-from domain.Movie import Movie
-from services.MovieService import MovieService
-from services.SimilarityService import SimilarityService
-from services.UserMoviePreferenceService import UserMoviePreferenceService
-from services.UserService import UserService
+from app.domain.Movie import Movie
+from app.services.MovieService import MovieService
+from app.services.SimilarityService import SimilarityService
+from app.services.UserMoviePreferenceService import UserMoviePreferenceService
+from app.services.UserService import UserService
 
 
 class RecommendationService:
@@ -40,8 +40,8 @@ class RecommendationService:
         # 3) compute similarity scores
         scores = movie_embeddings @ user_emb  # (N,)
 
-        unique_scores = torch.unique(scores)
-        print("unique scores:", unique_scores)
+        #unique_scores = torch.unique(scores)
+        #print("unique scores:", unique_scores)
 
         # 4) remove movies the user has already seen
         unseen_ids, unseen_scores = self._filter_seen(movie_ids, scores, user_id)

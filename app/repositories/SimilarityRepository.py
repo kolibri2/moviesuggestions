@@ -1,6 +1,6 @@
 import sqlite3
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 
 class AbstractSimilarityRepository(ABC):
@@ -34,9 +34,17 @@ class SQLSimilarityRepository(AbstractSimilarityRepository):
     Implements the SimilarityRepository interface as a SQLite database.
     """
 
-    def __init__(self, db_path: str):
+    def __init__(self, source: Union[str, sqlite3.Connection]):
 
-        self.conn = sqlite3.connect(db_path, check_same_thread=False)
+        if isinstance(source, sqlite3.Connection):
+            self.conn = source  # injected connection
+        else:
+            # Fallback: open a new one (old behaviour)
+            self.conn = sqlite3.connect(
+                source,
+                detect_types=sqlite3.PARSE_DECLTYPES,
+                check_same_thread=False,  # so background tasks won’t crash
+            )
         self._create_similarity_table()
 
     def _create_similarity_table(self):
