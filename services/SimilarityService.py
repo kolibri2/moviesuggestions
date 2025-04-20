@@ -49,6 +49,20 @@ class SimilarityService:
         except Exception as e:
             raise RuntimeError(f"Could not initiate model: {e}")
 
+    def get_all_movie_embeddings(self):
+
+        movie_internal_ids = [
+            int(movie.internal_id) for movie in self.movie_service.get_all_movies()
+        ]
+        descriptions = [
+            self.movie_service.get_overview_by_id(movie_internal_id)
+            for movie_internal_id in movie_internal_ids
+        ]
+
+        # 3. Calculate the model embeddings.
+        embeddings = self.get_embeddings(descriptions)
+        return embeddings, movie_internal_ids
+
     def get_embeddings(self, texts: Union[str, List[str]]) -> torch.Tensor:
         """
         Compute embeddings for a list of texts.

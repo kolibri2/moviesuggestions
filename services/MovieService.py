@@ -25,7 +25,7 @@ class MovieService:
         """
         return self.movie_repository.get_all_movies()
 
-    def get_movie_by_id(self, movie_id) -> Movie:
+    def get_movie_by_id(self, movie_id: int) -> Movie:
         """
         Implements the get_movie_by_id method from the AbstractMovieRepository class
         :param movie_id:
@@ -41,13 +41,10 @@ class MovieService:
         """
         return self.movie_repository.get_overview_by_id(movie_id)
 
-    def get_multiple_movies_by_id(self, movie_internal_ids: List[int]):
+    def get_multiple_movies_by_id(self, movie_internal_ids: List[int]) -> List[Movie]:
         """
-        Implements the get_multiple_movies_by_id method from the AbstractMovieRepository class
-        :param movie_internal_ids:
-        :return: List of ints, movie ids
+        :param movie_internal_ids: list of integer IDs
+        :return: List of Movie objects, in the same order
         """
-        movies = [
-            self.get_movie_by_id(movie[0]) for movie in movie_internal_ids
-        ]  # return 0 as that gives the movie ids, 1 gives sim score
-        return movies[0:4]  # return the entries with top 5 sim score.
+        movies = [self.get_movie_by_id(movie_id) for movie_id in movie_internal_ids]
+        return movies

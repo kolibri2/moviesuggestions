@@ -80,10 +80,22 @@ class SQLUserMoviePreferenceRepository(AbstractUserMoviePreferenceRepository):
 
         return movie_title
 
-    def get_user_preference(self, user_id, movie_key) -> int:
+    def get_user_preference(self, user_id: int, movie_key: int) -> int:
         cursor = self.conn.cursor()
         query = """
         SELECT liked FROM user_movie_preferences WHERE user_id = ? AND movie_key = ?;
         """
-        cursor.execute(query, user_id, movie_key)
+        cursor.execute(query, (user_id, movie_key))
         return cursor.fetchone()[0]
+
+    def get_seen_movies(self, user_id: int) -> list:
+        cursor = self.conn.cursor()
+        query = """
+        SELECT movie_key, movie_title FROM user_movie_preferences WHERE user_id = ?;
+        """
+        cursor.execute(query, (user_id,))
+        rows = cursor.fetchall()
+        if rows:
+            return rows
+        else:
+            return None
