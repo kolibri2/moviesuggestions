@@ -31,11 +31,11 @@ def init_new_db(conn: sqlite3.Connection):
 
 @app.on_event("startup")
 async def on_startup():
-    first_time = not os.path.exists(DB_PATH)
+    no_existing_database = not os.path.exists(DB_PATH)
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
 
-    if first_time:
+    if no_existing_database:
         print("Creating db and reading movies from csv...")
         os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
         with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
@@ -47,8 +47,8 @@ async def on_startup():
 
 @app.post("/users/")
 def create_user(username: str, svc: UserService = Depends(get_user_service)):
-    user_added_bool = svc.add_user(username)
-    if user_added_bool:
+    user_successfully_added = svc.add_user(username)
+    if user_successfully_added:
         return f"User {username} added successfully."
     else:
         return f"Failed adding user {username}."
@@ -97,7 +97,7 @@ def get_seen_movies(
         username: str,
         user_svc: UserService = Depends(get_user_service),
         pref_svc: UserMoviePreferenceService = Depends(get_user_movie_service),
-) -> List[str]:
+) -> Union[List[str], str]:
     user_id = user_svc.get_user_id_by_username(username)
     movies = pref_svc.get_seen_movies(user_id)
     if movies:
@@ -105,13 +105,6 @@ def get_seen_movies(
         return movie_titles
     else:
         return "No seen movies found."
-
-
-@app.get("/all_movies")
-def get_all_movies(
-        movie_service: MovieService = Depends(get_movie_service),
-):
-    return movie_service.get_all_movies()
 
 
 @app.get("/movies/{movie_id}")
