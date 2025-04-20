@@ -2,8 +2,8 @@ from typing import Optional
 
 import numpy as np
 
-from domain.User import User
-from repositories import UserRepository
+from app.domain.User import User
+from app.repositories import UserRepository
 
 
 class UserService:

@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from repositories import UserMoviePreferenceRepository
+from app.repositories import UserMoviePreferenceRepository
 
 
 class UserMoviePreferenceService:
