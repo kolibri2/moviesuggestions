@@ -1,3 +1,4 @@
+import json
 import sqlite3
 from abc import ABC, abstractmethod
 from typing import Union
@@ -94,18 +95,29 @@ class SQLUserRepository(AbstractUserRepository):
             return False
 
     def update_embedding_vector(self, user_id: int, embedding_vector):
+        # the embedding vector is converted to a json in order to be able to save it using SQLite
+        if hasattr(embedding_vector, "detach"):
+            embedding_vector = embedding_vector.detach().cpu().numpy().tolist()
+        serialized = json.dumps(embedding_vector)
+
         cursor = self.conn.cursor()
         query = "UPDATE users SET embedding_vector=? WHERE user_id=?"
-        cursor.execute(query, (embedding_vector, user_id))
+        cursor.execute(query, (serialized, user_id))
         self.conn.commit()
 
     def get_embedding_vector(self, user_id: int) -> np.ndarray:
         cursor = self.conn.cursor()
         query = "SELECT embedding_vector FROM users WHERE user_id=?;"
-        cursor.execute(query, user_id)
+        cursor.execute(query, (user_id,))
         row = cursor.fetchone()
-        if row is None:
 
+        # 1) no such user → no embedding
+        if row is None:
             return None
-        else:
-            return row[0]
+        raw_json = row[0]
+        if raw_json is None:
+            return None
+
+        print("returned embedding")
+        vec_list = json.loads(raw_json)
+        return np.array(vec_list, dtype=float)  # the embedding is a np.array

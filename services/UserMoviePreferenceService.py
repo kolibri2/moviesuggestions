@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from repositories import UserMoviePreferenceRepository
 
 
@@ -14,3 +16,6 @@ class UserMoviePreferenceService:
 
     def get_user_preferences(self, user_id, movie_id) -> int:
         return self.user_movie_preferences_repo.get_user_preference(user_id, movie_id)
+
+    def get_seen_movies(self, user_id: int) -> list[Tuple[int, str]]:
+        return self.user_movie_preferences_repo.get_seen_movies(user_id)
