@@ -73,3 +73,26 @@ API documentation interface.
     - You can test all available endpoints, such as creating users, rating movies, and getting movie recommendations.
     - The interface allows you to input parameters and see live responses from the API.
 
+### API Use Cases
+
+A user can be created with:
+
+```bash
+   curl -X 'POST' 'http://127.0.0.1:8000/users?username={USERNAME}' 
+   ```
+
+With a user created, a movie can be rated by that user. A ```
+movie_id``` needs to be provided, alongside a ```rating``` of the movie where ```1``` is like and ```0``` is dislike:
+
+   ```bash
+   curl -X 'POST' 'http://127.0.0.1:8000/rate_movie?username={USERNAME}&movie_id={MOVIE_ID}&rating={RATING}' 
+   ```
+
+A user can get personalized movie recommendations with:
+
+   ```bash
+   curl -X 'GET' 'http://127.0.0.1:8000/get_recommendation?username={USERNAME}'
+   ```
+
+
+

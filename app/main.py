@@ -60,7 +60,7 @@ async def on_startup():
     print("App is running.")
 
 
-@app.post("/users/")
+@app.post("/users")
 def create_user(username: str, svc: UserService = Depends(get_user_service)):
     user_successfully_added = svc.add_user(username)
     if user_successfully_added:
@@ -73,7 +73,7 @@ def create_user(username: str, svc: UserService = Depends(get_user_service)):
 def rate_movie(
     username: str,
     movie_id: int,
-    movie_opinion: int,  # 0 for dislike, 1 for like
+    rating: int,  # 0 for dislike, 1 for like
     user_svc: UserService = Depends(get_user_service),
     pref_svc: UserMoviePreferenceService = Depends(get_user_movie_service),
     rec_svc: RecommendationService = Depends(get_recommendation_service),
@@ -84,12 +84,12 @@ def rate_movie(
         return f"User {username} not found."
 
     else:
-        movie_title = pref_svc.add_user_preference(user_id, movie_id, movie_opinion)
+        movie_title = pref_svc.add_user_preference(user_id, movie_id, rating)
 
         rec_svc.update_user_embedding_vector(user_id, movie_id)
-        if movie_opinion:
+        if rating:
             return f"User {username} registered as liking the movie {movie_title[0]}."
-        if movie_opinion == 0:
+        if rating == 0:
             return (
                 f"User {username} registered as disliking the movie {movie_title[0]}."
             )
