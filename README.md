@@ -6,9 +6,7 @@ This project generates personalized movie recommendations using NLP. It combines
 
 1. **Movie Embeddings:**
    For each movie, a movie description is used to generate a LLM embedding representation. These embeddings are meant to capture the semantic meaning of the movie description, and
-   the goal is to be able to compare movies numerically with this embedding representation. A movie embedding belongs to \[
-\mathbf{X} \in \mathbb{R}^{D \times 1} where $D$ is the dimension of the embedding vector.
-\]
+   the goal is to be able to compare movies numerically with this embedding representation. 
    
 
 3. **User Embeddings:**  
