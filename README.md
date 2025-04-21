@@ -53,7 +53,4 @@ Follow these steps to get started:
    ```
 
 5. **Run the Project**  
-   Execute the main script to generate movie recommendations:
-   ```bash
-   python main.py
-   ```
+  Interact with the API to run the project.
