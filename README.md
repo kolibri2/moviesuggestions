@@ -11,8 +11,7 @@ embeddings and user embeddings to calculate recommendation scores.
    the goal is to be able to compare movies numerically with this embedding representation.
 
 2. **User Embeddings:**  
-   Each user is also represented as a numerical vector (embedding) that reflects their preferences based on past
-   interactions. It has the same dimensions as a movie.
+   Each user is also represented as a numerical vector (embedding) that reflects their preferences based on how they have rated movies. It has the same dimensions as a movie embedding.
 
 3. **Recommendation Score:**  
    By multiplying the movie embeddings with the user embeddings, the model calculates a score for each movie.  
