@@ -18,5 +18,5 @@ This project generates personalized movie recommendations using NLP. It combines
 
 ## Dataset
 
-The dataset used for this project is the Kaggle Movies dataset. It provides the necessary information about movies for the recommendation model.
+The dataset used for this project is the Kaggle Movies dataset. 
 
