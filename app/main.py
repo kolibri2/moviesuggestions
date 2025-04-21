@@ -4,8 +4,13 @@ from typing import Union, List
 
 from fastapi import FastAPI, Depends
 
-from app.dependencies import get_user_service, get_user_movie_service, get_recommendation_service, \
-    get_movie_service, get_similarity_service
+from app.dependencies import (
+    get_user_service,
+    get_user_movie_service,
+    get_recommendation_service,
+    get_movie_service,
+    get_similarity_service,
+)
 from app.repositories.MovieRepository import SQLMovieRepository
 from app.repositories.SimilarityRepository import (
     SQLSimilarityRepository,
@@ -16,10 +21,17 @@ from app.services.SimilarityService import SimilarityService
 from app.services.UserMoviePreferenceService import UserMoviePreferenceService
 from app.services.UserService import UserService
 
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DB_DIR = BASE_DIR / "Databases"
+DB_PATH = (
+    DB_DIR / "moviesuggestion.db"
+)  # if you change this, the path in db.py also has to be changed.
+SCHEMA_PATH = DB_DIR / "schema.sql"
+
 app = FastAPI()
-MOVIE_CSV_PATH = "../Data/archive/movies_metadata.csv"
-DB_PATH = "../Databases/moviesuggestion.db"
-SCHEMA_PATH = r"../Databases/schema.sql"
+MOVIE_CSV_PATH = BASE_DIR / "Data/archive/movies_metadata.csv"
 
 
 def init_new_db(conn: sqlite3.Connection):
@@ -31,15 +43,18 @@ def init_new_db(conn: sqlite3.Connection):
 
 @app.on_event("startup")
 async def on_startup():
-    no_existing_database = not os.path.exists(DB_PATH)
+    # 1) Make sure the folder for the DB file exists
+    os.makedirs(os.path.dirname(DB_PATH) or ".", exist_ok=True)
+
+    # 2) Check if the file is already there
+    db_exists = os.path.exists(DB_PATH)
+
+    # 3) Open the connection (this will create the file if it didn’t exist)
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
 
-    if no_existing_database:
-        print("Creating db and reading movies from csv...")
-        os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-        with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
-            conn.executescript(f.read())
+    if not db_exists:
+        print("Creating database...")
         init_new_db(conn)
 
     print("App is running.")
@@ -56,12 +71,12 @@ def create_user(username: str, svc: UserService = Depends(get_user_service)):
 
 @app.post("/rate_movie")
 def rate_movie(
-        username: str,
-        movie_id: int,
-        movie_opinion: int,  # 0 for dislike, 1 for like
-        user_svc: UserService = Depends(get_user_service),
-        pref_svc: UserMoviePreferenceService = Depends(get_user_movie_service),
-        rec_svc: RecommendationService = Depends(get_recommendation_service),
+    username: str,
+    movie_id: int,
+    movie_opinion: int,  # 0 for dislike, 1 for like
+    user_svc: UserService = Depends(get_user_service),
+    pref_svc: UserMoviePreferenceService = Depends(get_user_movie_service),
+    rec_svc: RecommendationService = Depends(get_recommendation_service),
 ):
     user_id = user_svc.get_user_id_by_username(username)
 
@@ -82,9 +97,9 @@ def rate_movie(
 
 @app.get("/get_recommendation")
 def get_recommendation(
-        username: str,
-        user_svc: UserService = Depends(get_user_service),
-        rec_svc: RecommendationService = Depends(get_recommendation_service),
+    username: str,
+    user_svc: UserService = Depends(get_user_service),
+    rec_svc: RecommendationService = Depends(get_recommendation_service),
 ):
     user_id = user_svc.get_user_id_by_username(username)
     if user_id is None:
@@ -94,9 +109,9 @@ def get_recommendation(
 
 @app.get("/user/seen_movies")
 def get_seen_movies(
-        username: str,
-        user_svc: UserService = Depends(get_user_service),
-        pref_svc: UserMoviePreferenceService = Depends(get_user_movie_service),
+    username: str,
+    user_svc: UserService = Depends(get_user_service),
+    pref_svc: UserMoviePreferenceService = Depends(get_user_movie_service),
 ) -> Union[List[str], str]:
     user_id = user_svc.get_user_id_by_username(username)
     movies = pref_svc.get_seen_movies(user_id)
