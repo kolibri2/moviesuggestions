@@ -1,6 +1,6 @@
 # Movie Suggestions
 
-This project generates personalized movie recommendations using Natural Language Processing (NLP). It combines movie
+This project generates personalized movie recommendations using NLP. It combines movie
 embeddings and user embeddings to calculate recommendation scores.
 
 ## How It Works
@@ -21,7 +21,7 @@ embeddings and user embeddings to calculate recommendation scores.
 
 The dataset used for this project
 is [The Movies Dataset](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset), which is available on Kaggle.  
-You must download the dataset manually before running the project.
+Download the dataset manually before running the project.
 
 ## Installation and Setup
 
