@@ -52,5 +52,24 @@ Follow these steps to get started:
    MOVIE_CSV_PATH = "path/to/movies.csv"
    ```
 
-5. **Run the Project**  
-  Interact with the API to run the project.
+## Interact with the API
+
+The easiest way to interact with this project's API is through the `/docs` endpoint. It provides a built-in, interactive
+API documentation interface.
+
+### Accessing the API Documentation
+
+1. Start the server by running the project:
+   ```bash
+   python main.py
+   ```
+
+2. Open your browser and navigate to:
+   ```
+   http://127.0.0.1:8000/docs
+   ```
+
+3. Explore the API:
+    - You can test all available endpoints, such as creating users, rating movies, and getting movie recommendations.
+    - The interface allows you to input parameters and see live responses from the API.
+
