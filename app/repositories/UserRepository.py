@@ -111,13 +111,12 @@ class SQLUserRepository(AbstractUserRepository):
         cursor.execute(query, (user_id,))
         row = cursor.fetchone()
 
-        # 1) no such user → no embedding
+        # 1) no such user > no embedding
         if row is None:
             return None
-        raw_json = row[0]
+        raw_json = row[0]  # the embeddings are stored as json
         if raw_json is None:
             return None
 
-        print("returned embedding")
         vec_list = json.loads(raw_json)
         return np.array(vec_list, dtype=float)  # the embedding is a np.array
