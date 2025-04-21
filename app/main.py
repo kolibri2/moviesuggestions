@@ -119,7 +119,7 @@ def get_seen_movies(
         movie_keys, movie_titles = zip(*movies)
         return movie_titles
     else:
-        return "No seen movies found."
+        return f"No seen movies found for user {username}."
 
 
 @app.get("/movies/{movie_id}")
