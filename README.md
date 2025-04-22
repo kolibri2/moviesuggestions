@@ -65,7 +65,7 @@ The easiest way to interact with this project's API is through the `/docs` endpo
    ```
 
 Running `main.py` as is defaults to 100 movies being read from the dataset. This can be changed by altering
-the `num_movies` parameter of `SQLMovieRepository` inititation in `init_new_db`, also in `main.py`.
+the `num_movies` parameter in `init_new_db`, inside the API startup function `on_startup` in `main.py`.
 
 2. Open your browser and navigate to:
    ```

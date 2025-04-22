@@ -31,7 +31,12 @@ DB_PATH = (
 SCHEMA_PATH = DB_DIR / "schema.sql"
 
 app = FastAPI()
-MOVIE_CSV_PATH = BASE_DIR / "Data/archive/movies_metadata.csv"
+MOVIE_CSV_PATH = (
+    BASE_DIR / "Data/archive/movies_metadata.csv"
+)  # if you change this, the path in dependencies.py also
+
+
+# has to be changed
 
 
 def init_new_db(conn: sqlite3.Connection, num_movies=100):
