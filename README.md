@@ -1,7 +1,6 @@
 # Movie Suggestions
 
-This project generates personalized movie recommendations using NLP. It combines movie
-embeddings and user embeddings to calculate recommendation scores.
+This project generates personalized movie recommendations using NLP. It uses an LLM (`distilbert/distilbert-base-uncased`) to generate embeddings of movie descriptions. These embeddings are then used to recommend movies to users based on how they've rated movies.
 
 ## How It Works
 
