@@ -130,7 +130,7 @@ class RecommendationService:
         # fetch the old user embedding vector
         old_user_embedding_vector = self.user_service.get_embedding_vector(user_id)
 
-        # fetch the embedding of the movie description
+        # get the embedding of the movie description
         new_movie_embedding = self.get_embedding_of_movie(movie_id)
 
         device = new_movie_embedding.device
@@ -139,7 +139,7 @@ class RecommendationService:
         if old_user_embedding_vector is None:
             old_user_embedding_vector = torch.zeros_like(new_movie_embedding)
         else:
-            # convert any list/np.ndarray → Tensor, or move an existing Tensor
+            # convert any list/np.ndarray to Tensor, or move an existing Tensor
             if isinstance(old_user_embedding_vector, torch.Tensor):
                 old_user_embedding_vector = old_user_embedding_vector.to(
                     device=device, dtype=dtype
@@ -149,7 +149,7 @@ class RecommendationService:
                     old_user_embedding_vector, device=device, dtype=dtype
                 )
 
-        # fetch the movie preference of movie_id from usermovieprefsvc
+        # get the movie preference of movie_id from usermovieprefsvc
         preference = self.user_movie_preference_service.get_user_preferences(
             user_id, movie_id
         )

@@ -25,15 +25,11 @@ class AbstractUserRepository(ABC):
 
 class SQLUserRepository(AbstractUserRepository):
 
-    # def __init__(self, db_path: str):
-    # self.conn = sqlite3.connect(db_path)
-    # self._create_user_table()
-
     def __init__(self, source: Union[str, sqlite3.Connection]):
         if isinstance(source, sqlite3.Connection):
             self.conn = source  # injected connection
         else:
-            # Fallback: open a new one (old behaviour)
+
             self.conn = sqlite3.connect(
                 source,
                 detect_types=sqlite3.PARSE_DECLTYPES,
