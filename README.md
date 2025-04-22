@@ -45,7 +45,7 @@ Follow these steps to get started:
     - Download the dataset and extract it locally.
 
 4. **Set the Dataset Path**  
-   Update the `MOVIE_CSV_PATH` variable in `main.py` and 'dependencies.py' to point to the location of the downloaded dataset file. For
+   Update the `MOVIE_CSV_PATH` variable in `main.py` and `dependencies.py` to point to the location of the downloaded dataset file. For
    example:
    ```python
    MOVIE_CSV_PATH = "path/to/movies.csv"
