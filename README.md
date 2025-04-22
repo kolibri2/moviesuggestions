@@ -1,6 +1,6 @@
 # Movie Suggestions
 
-This project generates personalized movie recommendations using Natural Language Processing. It combines movie
+This project generates personalized movie recommendations using NLP. It combines movie
 embeddings and user embeddings to calculate recommendation scores.
 
 ## How It Works
@@ -11,8 +11,8 @@ embeddings and user embeddings to calculate recommendation scores.
    the goal is to be able to compare movies numerically with this embedding representation.
 
 2. **User Embeddings:**  
-   Each user is also represented as a numerical vector (embedding) that reflects their preferences based on past
-   interactions. It has the same dimensions as a movie.
+   Each user is also represented as a numerical vector (embedding) that reflects their preferences based on how they
+   have rated movies. It has the same dimensions as a movie embedding.
 
 3. **Recommendation Score:**  
    By multiplying the movie embeddings with the user embeddings, the model calculates a score for each movie.  
@@ -22,7 +22,7 @@ embeddings and user embeddings to calculate recommendation scores.
 
 The dataset used for this project
 is [The Movies Dataset](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset), which is available on Kaggle.  
-You must download the dataset manually before running the project.
+Download the dataset manually before running the project.
 
 ## Installation and Setup
 
@@ -46,7 +46,8 @@ Follow these steps to get started:
     - Download the dataset and extract it locally.
 
 4. **Set the Dataset Path**  
-   Update the `MOVIE_CSV_PATH` variable in `main.py` to point to the location of the downloaded dataset file. For
+   Update the `MOVIE_CSV_PATH` variable in `main.py` and `dependencies.py` to point to the location of the downloaded
+   dataset file. For
    example:
    ```python
    MOVIE_CSV_PATH = "path/to/movies.csv"
@@ -54,8 +55,7 @@ Follow these steps to get started:
 
 ## Interact with the API
 
-The easiest way to interact with this project's API is through the `/docs` endpoint. It provides a built-in, interactive
-API documentation interface.
+The easiest way to interact with this project's API is through the `/docs` endpoint.
 
 ### Accessing the API Documentation
 
