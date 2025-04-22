@@ -50,13 +50,13 @@ def init_new_db(conn: sqlite3.Connection, num_movies=100):
 
 @app.on_event("startup")
 async def on_startup():
-    # 1) Make sure the folder for the DB file exists
+    #  make sure the folder for the DB file exists
     os.makedirs(os.path.dirname(DB_PATH) or ".", exist_ok=True)
 
-    # 2) Check if the file is already there
+    # check if the file is already there
     db_exists = os.path.exists(DB_PATH)
 
-    # 3) Open the connection (this will create the file if it didn’t exist)
+    # open the connection (this will create the file if it didn’t exist)
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
 
@@ -137,6 +137,4 @@ def get_movie(movie_id: int, movie_service: MovieService = Depends(get_movie_ser
 
 @app.get("/all_movies")
 def get_all_movies(movie_service: MovieService = Depends(get_movie_service)):
-    movies = movie_service.get_all_movies()
-    # Convert your movies to a serializable format if necessary.
-    return movies
+    return movie_service.get_all_movies()
