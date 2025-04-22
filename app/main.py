@@ -34,8 +34,10 @@ app = FastAPI()
 MOVIE_CSV_PATH = BASE_DIR / "Data/archive/movies_metadata.csv"
 
 
-def init_new_db(conn: sqlite3.Connection):
-    movie_repo = SQLMovieRepository(MOVIE_CSV_PATH, source=conn, is_new_db=True)
+def init_new_db(conn: sqlite3.Connection, num_movies=100):
+    movie_repo = SQLMovieRepository(
+        MOVIE_CSV_PATH, source=conn, is_new_db=True, num_movies=num_movies
+    )
     movie_service = MovieService(movie_repo)
     similarity_repo = SQLSimilarityRepository(source=conn)
     sim_service = SimilarityService(similarity_repo, movie_service)

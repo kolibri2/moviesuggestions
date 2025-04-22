@@ -1,6 +1,6 @@
 # Movie Suggestions
 
-This project generates personalized movie recommendations using Natural Language Processing (NLP). It combines movie
+This project generates personalized movie recommendations using Natural Language Processing. It combines movie
 embeddings and user embeddings to calculate recommendation scores.
 
 ## How It Works
@@ -63,6 +63,9 @@ API documentation interface.
    ```bash
    python main.py
    ```
+
+Running `main.py` as is defaults to 100 movies being read from the dataset. This can be changed by altering
+the `num_movies` parameter of `SQLMovieRepository` inititation in `init_new_db`, also in `main.py`.
 
 2. Open your browser and navigate to:
    ```
