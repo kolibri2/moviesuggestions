@@ -85,37 +85,41 @@ class SimilarityService:
         )
         with torch.no_grad():
             outputs = self.model(**inputs)
-        # Taking the mean of the token embeddings (this is one simple way to get a sentence embedding)
+        # taking the mean of the token embeddings
         embeddings = outputs.last_hidden_state.mean(dim=1)
 
-        pca = PCA(n_components=1)
-        pca.fit(embeddings)
-        common_dir_np = pca.components_[0]  # shape (D,)
-
-        # now convert your embeddings to a tensor, if not already
-        embeddings: torch.Tensor  # shape (N, D)
-
-        # convert the PCA direction to a torch tensor
-        common_dir = (
-            torch.from_numpy(common_dir_np).to(embeddings.device).to(embeddings.dtype)
-        )
-        # common_dir is now a Tensor of shape (D,)
-
-        # compute projection of each embedding onto common_dir
-        # projection scalar per vector: (N,) = (N×D) @ (D,)
-        projections = embeddings.matmul(common_dir)
-
-        # subtract that component
-        embeddings_debiased = embeddings - projections.unsqueeze(
-            1
-        ) * common_dir.unsqueeze(0)
-
-        # re‑normalize
-        embeddings_debiased = torch.nn.functional.normalize(
-            embeddings_debiased, p=2, dim=1
-        )
+        embeddings_debiased = self._remove_principal_component(
+            embeddings
+        )  # remove the component that is common along all embeddings in order to get a better similarity score.
 
         return embeddings_debiased
+
+    def _remove_principal_component(embeddings: torch.Tensor) -> torch.Tensor:
+        """
+        Debias embeddings by removing their first principal component via PCA.
+        """
+        # Move embeddings to CPU and convert to numpy for PCA
+        embeddings_np = embeddings.cpu().detach().numpy()
+        pca = PCA(n_components=1)
+        pca.fit(embeddings_np)
+        principal_axis = pca.components_[0]  # shape (D,)
+
+        # Convert principal axis back to torch tensor
+        principal_vector = (
+            torch.from_numpy(principal_axis).to(embeddings.device).to(embeddings.dtype)
+        )  # shape (D,)
+
+        # Compute projection of each embedding onto the principal vector
+        projection_scores = embeddings.matmul(principal_vector)  # shape (N,)
+
+        # Subtract the projected component
+        debiased = embeddings - projection_scores.unsqueeze(
+            1
+        ) * principal_vector.unsqueeze(0)
+
+        # L2 normalize debiased embeddings
+        normalized = F.normalize(debiased, p=2, dim=1)
+        return normalized
 
     def calculate_pairwise_similarity(
         self,
