@@ -94,7 +94,7 @@ class SimilarityService:
 
         return embeddings_debiased
 
-    def _remove_principal_component(embeddings: torch.Tensor) -> torch.Tensor:
+    def _remove_principal_component(self, embeddings: torch.Tensor) -> torch.Tensor:
         """
         Debias embeddings by removing their first principal component via PCA.
         """
