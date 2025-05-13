@@ -6,7 +6,7 @@ function App() {
 
     useEffect(() => {
         // for demo, hardcode a username:
-        getRecommendations("alice")
+        getRecommendations("john")
             .then(setRecs)
             .catch(console.error);
     }, []);
