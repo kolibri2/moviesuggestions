@@ -87,14 +87,14 @@ class SimilarityService:
             outputs = self.model(**inputs)
         # taking the mean of the token embeddings
         embeddings = outputs.last_hidden_state.mean(dim=1)
-
+        print(embeddings.shape)
         embeddings_debiased = self._remove_principal_component(
             embeddings
         )  # remove the component that is common along all embeddings in order to get a better similarity score.
 
         return embeddings_debiased
 
-    def _remove_principal_component(embeddings: torch.Tensor) -> torch.Tensor:
+    def _remove_principal_component(self, embeddings: torch.Tensor) -> torch.Tensor:
         """
         Debias embeddings by removing their first principal component via PCA.
         """
