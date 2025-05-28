@@ -1,30 +1,53 @@
-import {useEffect, useState} from "react";
-import {getRecommendations, Movie} from "./services/api";
+// src/App.tsx
+import React, {useState} from 'react';
+import {MoviePicker} from './components/MoviePicker';
+import type {Movie} from './services/api';
+import {useRecommendations} from './hooks/useRecommendations';
+import {UserForm} from './components/UserForm';
+import {RecommendationList} from './components/RecommendationList';
+import {CreateUserForm} from "./components/CreateUser";
 
-function App() {
-    const [recs, setRecs] = useState<Movie[] | null>(null);
+export default function App() {
+    const [username, setUsername] = useState('');
+    const {recs, loading, error, fetchRecs} = useRecommendations();
+    const [chosen, setChosen] = useState<Movie | null>(null);
 
-    useEffect(() => {
-        // for demo, hardcode a username:
-        getRecommendations("john")
-            .then(setRecs)
-            .catch(console.error);
-    }, []);
-
-    if (!recs) return <div>Loading recommendations…</div>;
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (username.trim()) {
+            fetchRecs(username.trim());
+        }
+    };
 
     return (
-        <div>
-            <h1>Your Movie Recommendations</h1>
-            <ul>
-                {recs.map(m => (
-                    <li key={m.movie_id}>
-                        <strong>{m.title}</strong>: {m.overview}
-                    </li>
-                ))}
-            </ul>
+        <div style={{maxWidth: 600, margin: '0 auto', padding: 20}}>
+            <h1>Movie Recommender</h1>
+
+            {/* Username form */}
+            <UserForm
+                username={username}
+                onUsernameChange={setUsername}
+                onSubmit={handleSubmit}
+            />
+            {loading && <p>Loading recommendations…</p>}
+            {error && <p style={{color: 'red'}}>Error: {error}</p>}
+            {!loading && !error && <RecommendationList movies={recs}/>}
+
+            {/* Movie picker */}
+            <h2>Or pick a movie from the full list</h2>
+            <MoviePicker onMovieSelect={setChosen}/>
+            {chosen && (
+                <div style={{marginTop: 20}}>
+                    <h3>{chosen.title}</h3>
+                    <p>{chosen.overview}</p>
+                </div>
+            )}
+
+
+            <CreateUserForm/>
+
+            {/* existing recommendation UI below… */}
         </div>
+
     );
 }
-
-export default App;
