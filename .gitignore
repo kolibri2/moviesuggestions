@@ -179,3 +179,6 @@ Data/.DS_Store
 Databases/movies.db
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+
+# temp file
+.deps_installed
