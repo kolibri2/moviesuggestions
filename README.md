@@ -1,19 +1,19 @@
-# Movie Suggestions
+# Movie suggestions
 
-This project generates personalized movie recommendations using NLP. It uses a LLM (`distilbert/distilbert-base-cased`) to generate embeddings of movie descriptions. These embeddings are then used to calculate a similarity score, which in turn are used to recommend movies to users based on how they've rated movies.
+This project generates personalized movie recommendations using NLP. It uses an LLM (`distilbert/distilbert-base-cased`) to generate embeddings of movie descriptions. These embeddings are then used to calculate a similarity score, which in turn are used to recommend movies to users based on how they've rated movies.
 
-## How It Works
+## How it works
 
-1. **Movie Embeddings:**
+1. **Movie embeddings:**
    For each movie, a movie description is used to generate a LLM embedding representation. These embeddings are meant to
    capture the semantic meaning of the movie description, and
    the goal is to be able to compare movies numerically with this embedding representation.
 
-2. **User Embeddings:**  
+2. **User embeddings:**  
    Each user is also represented as a numerical vector (embedding) that reflects their preferences based on how they
    have rated movies. It has the same dimensions as a movie embedding.
 
-3. **Recommendation Score:**  
+3. **Recommendation score:**  
    By multiplying the movie embeddings with the user embeddings, the model calculates a score for each movie.  
    Higher scores indicate a stronger match between the user's preferences and the movie's features.
 
@@ -23,47 +23,38 @@ The dataset used for this project
 is [The Movies Dataset](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset), which is available on Kaggle.  
 Download the dataset manually before running the project.
 
-## Installation and Setup
+## Installation and setup
 
 Follow these steps to get started:
 
-1. **Clone the Repository**  
+1. **Clone the repository**  
    Clone this repository to your local machine:
    ```bash
    git clone https://github.com/kolibri2/moviesuggestions.git
    cd moviesuggestions
    ```
 
-2. **Install Dependencies**  
+2. **Install dependencies**  
    Install the required Python packages:
    ```bash
    pip install -r requirements.txt
-   ```
-
-3. **Download the Dataset**
-    - Visit the [Kaggle Movies Dataset page](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset).
-    - Download the dataset and extract it locally.
-
-4. **Set the Dataset Path**  
-   Update the `MOVIE_CSV_PATH` variable in `main.py` and `dependencies.py` to point to the location of the downloaded
-   dataset file. For
-   example:
-   ```python
-   MOVIE_CSV_PATH = "path/to/movies.csv"
    ```
 
 ## Interact with the API
 
 The easiest way to interact with this project's API is through the `/docs` endpoint.
 
-### Accessing the API Documentation
+### Run the project
 
-1. Start the server by running the project:
+> ❗ **Dataset download**
+> The first run will automatically download a ~12 MB CSV dataset from Kaggle.
+
+1. Start the server by running the project from project root:
    ```bash
-   python main.py
+   make run
    ```
 
-Running `main.py` as is defaults to 100 movies being read from the dataset. This can be changed by altering
+Running as is defaults to 100 movies being read from the dataset. This can be changed by altering
 the `num_movies` parameter of `init_new_db`, inside the API startup function `on_startup` in `main.py`.
 
 2. Open your browser and navigate to:
