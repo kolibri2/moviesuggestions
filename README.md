@@ -34,10 +34,10 @@ Follow these steps to get started:
    cd moviesuggestions
    ```
 
-2. **Install dependencies**  
-   Install the required Python packages:
+2. **Setup dependencies**  
+   Install the required Python packages, download dataset:
    ```bash
-   pip install -r requirements.txt
+   make setup
    ```
 
 ## Interact with the API
