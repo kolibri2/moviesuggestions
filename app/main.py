@@ -32,7 +32,7 @@ SCHEMA_PATH = DB_DIR / "schema.sql"
 
 app = FastAPI()
 MOVIE_CSV_PATH = (
-    BASE_DIR / "Data/archive/movies_metadata.csv"
+    BASE_DIR / "Data/movies_metadata.csv"
 )  # if you change this, the path in dependencies.py also
 
 
