@@ -1,0 +1,11 @@
+.git
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.venv
+venv
+.env
+notebooks
+Databases/*.db
+Databases/*.sqlite3
