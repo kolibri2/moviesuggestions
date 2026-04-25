@@ -182,3 +182,12 @@ Databases/*.db
 
 # temp file
 .deps_installed
+
+
+#terraform
+
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform.lock.hcl  # debatable - see below
