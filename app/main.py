@@ -12,9 +12,6 @@ from app.dependencies import (
     get_similarity_service,
 )
 from app.repositories.MovieRepository import SQLMovieRepository
-from app.repositories.SimilarityRepository import (
-    SQLSimilarityRepository,
-)
 from app.services.MovieService import MovieService
 from app.services.RecommendationService import RecommendationService
 from app.services.SimilarityService import SimilarityService
@@ -44,8 +41,9 @@ def init_new_db(conn: sqlite3.Connection, num_movies=100):
         MOVIE_CSV_PATH, source=conn, is_new_db=True, num_movies=num_movies
     )
     movie_service = MovieService(movie_repo)
-    similarity_repo = SQLSimilarityRepository(source=conn)
-    sim_service = SimilarityService(similarity_repo, movie_service)
+    sim_service = SimilarityService(movie_repo, movie_service)
+    print("Computing movie embeddings...")
+    sim_service.populate_movie_embeddings()
 
 
 @app.on_event("startup")
