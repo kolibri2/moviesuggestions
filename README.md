@@ -1,13 +1,15 @@
 # Movie suggestions
 
-This project generates personalized movie recommendations using NLP. It uses an LLM (`distilbert/distilbert-base-cased`) to generate embeddings of movie descriptions. These embeddings are then used to calculate a similarity score, which in turn are used to recommend movies to users based on how they've rated movies.
+This project generates personalized movie recommendations using NLP. It uses a sentence-transformer model (`sentence-transformers/all-MiniLM-L6-v2`) to generate embeddings of movie descriptions. These embeddings are then used to calculate a similarity score, which in turn is used to recommend movies to users based on how they've rated movies.
 
 ## How it works
 
 1. **Movie embeddings:**
-   For each movie, a movie description is used to generate a LLM embedding representation. These embeddings are meant to
+   For each movie, a movie description is used to generate an embedding representation. These embeddings are meant to
    capture the semantic meaning of the movie description, and
-   the goal is to be able to compare movies numerically with this embedding representation.
+   the goal is to be able to compare movies numerically with this embedding representation. The embeddings are
+   computed once when the database is initialized and stored on the movie row, so they don't have to be recomputed
+   on every request.
 
 2. **User embeddings:**  
    Each user is also represented as a numerical vector (embedding) that reflects their preferences based on how they
@@ -39,6 +41,25 @@ Follow these steps to get started:
    ```bash
    make setup
    ```
+   This expects Python 3.11 to be installed. If you have a different version available you can change the `PYTHON`
+   variable at the top of the `Makefile`.
+
+## Run with Docker
+
+If you'd rather not install the Python dependencies locally, you can run the project in a container instead.
+
+1. Build the image:
+   ```bash
+   docker build -t moviesuggestions .
+   ```
+
+2. Run it:
+   ```bash
+   docker run -p 8000:8000 moviesuggestions
+   ```
+
+The first time the container starts it will download the embedding model and compute embeddings for the loaded movies,
+so the first boot takes a bit longer than subsequent ones.
 
 ## Interact with the API
 
@@ -86,6 +107,3 @@ A user can get personalized movie recommendations with:
    ```bash
    curl -X 'GET' 'http://127.0.0.1:8000/get_recommendation?username={USERNAME}'
    ```
-
-
-
