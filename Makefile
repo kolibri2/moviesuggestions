@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 VENV := .venv
 PYTHON := python3.11
 PY := $(VENV)/bin/python
@@ -9,7 +11,10 @@ DATA_DIR := Data
 CSV := $(DATA_DIR)/movies_metadata.csv
 KAGGLE_DATASET := rounakbanik/the-movies-dataset
 
-.PHONY: setup run clean
+FRONTEND_DIR := frontend
+FRONTEND_DEPS := $(FRONTEND_DIR)/node_modules
+
+.PHONY: setup frontend-setup run api frontend clean
 
 # Setup depends on artifacts
 setup: $(PY) .deps_installed $(CSV)
@@ -30,8 +35,26 @@ $(CSV): .deps_installed
 	unzip -o $(DATA_DIR)/movies_metadata.csv.zip -d $(DATA_DIR)
 	rm -f $(DATA_DIR)/movies_metadata.csv.zip
 
-run: setup
+# Install frontend deps only if missing
+frontend-setup: $(FRONTEND_DEPS)
+
+$(FRONTEND_DEPS): $(FRONTEND_DIR)/package.json
+	cd $(FRONTEND_DIR) && npm install
+
+# Run API only
+api: setup
 	$(UVICORN) app.main:app --reload
 
+# Run frontend only
+frontend: frontend-setup
+	cd $(FRONTEND_DIR) && npm run dev
+
+# Run both API and frontend, kill both on Ctrl+C
+run: setup frontend-setup
+	@trap 'kill 0' INT TERM EXIT; \
+	$(UVICORN) app.main:app --reload & \
+	(cd $(FRONTEND_DIR) && npm run dev) & \
+	wait
+
 clean:
-	rm -rf $(VENV) .deps_installed $(DATA_DIR)
+	rm -rf $(VENV) .deps_installed $(DATA_DIR) $(FRONTEND_DEPS)
