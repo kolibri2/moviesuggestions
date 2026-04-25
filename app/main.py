@@ -2,7 +2,8 @@ import os
 import sqlite3
 from typing import Union, List
 
-from fastapi import FastAPI, Depends
+from fastapi import APIRouter, Depends, FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app.dependencies import (
     get_user_service,
@@ -26,8 +27,10 @@ DB_PATH = (
     DB_DIR / "moviesuggestion.db"
 )  # if you change this, the path in db.py also has to be changed.
 SCHEMA_PATH = DB_DIR / "schema.sql"
+STATIC_DIR = BASE_DIR / "static"
 
 app = FastAPI()
+api = APIRouter(prefix="/api")
 MOVIE_CSV_PATH = (
     BASE_DIR / "Data/movies_metadata.csv"
 )  # if you change this, the path in dependencies.py also
@@ -65,7 +68,7 @@ async def on_startup():
     print("App is running.")
 
 
-@app.post("/users")
+@api.post("/users")
 def create_user(username: str, svc: UserService = Depends(get_user_service)):
     user_successfully_added = svc.add_user(username)
     if user_successfully_added:
@@ -74,7 +77,7 @@ def create_user(username: str, svc: UserService = Depends(get_user_service)):
         return f"Failed adding user {username}."
 
 
-@app.post("/rate_movie")
+@api.post("/rate_movie")
 def rate_movie(
     username: str,
     movie_id: int,
@@ -100,7 +103,7 @@ def rate_movie(
             )
 
 
-@app.get("/get_recommendation")
+@api.get("/get_recommendation")
 def get_recommendation(
     username: str,
     user_svc: UserService = Depends(get_user_service),
@@ -112,7 +115,7 @@ def get_recommendation(
     return rec_svc.get_recommendation(user_id, 5)
 
 
-@app.get("/user/seen_movies")
+@api.get("/user/seen_movies")
 def get_seen_movies(
     username: str,
     user_svc: UserService = Depends(get_user_service),
@@ -127,12 +130,20 @@ def get_seen_movies(
         return f"No seen movies found for user {username}."
 
 
-@app.get("/movies/{movie_id}")
+@api.get("/movies/{movie_id}")
 def get_movie(movie_id: int, movie_service: MovieService = Depends(get_movie_service)):
     movie = movie_service.get_movie_by_id(movie_id)
     return {"title": movie.title, "overview": movie.overview}
 
 
-@app.get("/all_movies")
+@api.get("/all_movies")
 def get_all_movies(movie_service: MovieService = Depends(get_movie_service)):
     return movie_service.get_all_movies()
+
+
+app.include_router(api)
+
+# Serve the built React app if present (Docker image / production).
+# In local dev the frontend runs separately via Vite, and this dir won't exist.
+if STATIC_DIR.is_dir():
+    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
