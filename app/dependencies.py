@@ -5,7 +5,6 @@ from typing import Generator
 
 from app.db import get_connection
 from app.repositories.MovieRepository import SQLMovieRepository
-from app.repositories.SimilarityRepository import SQLSimilarityRepository
 from app.repositories.UserMoviePreferenceRepository import SQLUserMoviePreferenceRepository
 from app.repositories.UserRepository import SQLUserRepository
 from app.services.MovieService import MovieService
@@ -17,21 +16,23 @@ from app.services.UserService import UserService
 MOVIE_CSV_PATH = "../Data/archive/movies_metadata.csv"
 
 
-def get_movie_service(
+def get_movie_repository(
         conn=Depends(get_connection),
+) -> Generator[SQLMovieRepository, None, None]:
+    yield SQLMovieRepository(MOVIE_CSV_PATH, source=conn)
+
+
+def get_movie_service(
+        repo: SQLMovieRepository = Depends(get_movie_repository),
 ) -> Generator[MovieService, None, None]:
-    repo = SQLMovieRepository(MOVIE_CSV_PATH, source=conn)
-    svc = MovieService(repo)
-    yield svc
+    yield MovieService(repo)
 
 
 def get_similarity_service(
-        conn: sqlite3.Connection = Depends(get_connection),
+        movie_repo: SQLMovieRepository = Depends(get_movie_repository),
         movie_service: MovieService = Depends(get_movie_service),
 ) -> Generator[SimilarityService, None, None]:
-    sim_repo = SQLSimilarityRepository(conn)
-    svc = SimilarityService(sim_repo, movie_service)
-    yield svc
+    yield SimilarityService(movie_repo, movie_service)
 
 
 def get_user_service(

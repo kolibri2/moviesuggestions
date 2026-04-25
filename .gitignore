@@ -173,10 +173,10 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
-Data/.DS_Store
+Data/
 
 #database
-Databases/movies.db
+Databases/*.db
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 

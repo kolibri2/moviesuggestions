@@ -5,22 +5,9 @@ create table movies
     movie_id  TEXT
         unique,
     title     TEXT,
-    overview  TEXT
+    overview  TEXT,
+    embedding BLOB
 );
-
-create table similarityScore
-(
-    similarity_score_key integer
-        primary key autoincrement,
-    movie_1_ref          integer
-        references movies,
-    movie_2_ref          integer
-        references movies,
-    similarity_score     float,
-    unique (movie_1_ref, movie_2_ref)
-);
-
-
 
 create table users
 (

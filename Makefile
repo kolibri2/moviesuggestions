@@ -1,4 +1,5 @@
 VENV := .venv
+PYTHON := python3.11
 PY := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
 KAGGLE := $(VENV)/bin/kaggle
@@ -15,7 +16,7 @@ setup: $(PY) .deps_installed $(CSV)
 
 # Create venv only if missing
 $(PY):
-	python3 -m venv $(VENV)
+	$(PYTHON) -m venv $(VENV)
 
 # Install deps only if not already done
 .deps_installed: requirements.txt $(PY)
