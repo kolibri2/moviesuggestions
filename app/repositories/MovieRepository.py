@@ -2,8 +2,9 @@ import os
 import sqlite3
 import time
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import List, Tuple, Union
 
+import numpy as np
 import pandas as pd
 
 from app.domain.Movie import Movie
@@ -92,7 +93,8 @@ class SQLMovieRepository(AbstractMovieRepository):
         movie_key integer PRIMARY KEY AUTOINCREMENT,
         movie_id TEXT UNIQUE,
         title TEXT,
-        overview TEXT
+        overview TEXT,
+        embedding BLOB
         );
         """
         )
@@ -171,3 +173,21 @@ class SQLMovieRepository(AbstractMovieRepository):
         if row:
             return row[0]
         raise ValueError(f"Overview from movie with internal id {movie_key} not found")
+
+    def save_embedding(self, movie_key: int, embedding: np.ndarray) -> None:
+        blob = np.asarray(embedding, dtype=np.float32).tobytes()
+        cursor = self.conn.cursor()
+        cursor.execute(
+            "UPDATE movies SET embedding = ? WHERE movie_key = ?", (blob, movie_key)
+        )
+        self.conn.commit()
+
+    def get_all_embeddings(self) -> List[Tuple[int, np.ndarray]]:
+        cursor = self.conn.cursor()
+        cursor.execute(
+            "SELECT movie_key, embedding FROM movies WHERE embedding IS NOT NULL"
+        )
+        return [
+            (movie_key, np.frombuffer(blob, dtype=np.float32))
+            for movie_key, blob in cursor.fetchall()
+        ]
