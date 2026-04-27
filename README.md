@@ -19,6 +19,10 @@ This project generates personalized movie recommendations using NLP. It uses a s
    By multiplying the movie embeddings with the user embeddings, the model calculates a score for each movie.  
    Higher scores indicate a stronger match between the user's preferences and the movie's features.
 
+## Deployment
+
+The app is deployed on AWS ECS with infrastructure defined as code in `infra/`.
+
 ## Dataset
 
 The dataset used for this project
