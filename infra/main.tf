@@ -97,6 +97,11 @@ resource "aws_ecs_cluster" "movie_recommendation_cluster" {
   name = "movie-rec-cluster"
 }
 
+resource "aws_cloudwatch_log_group" "movie_recommendation_logs" {
+  name              = "/ecs/movie-recommendation"
+  retention_in_days = 7
+}
+
 resource "aws_ecs_task_definition" "movie_recommendation_task" {
   family                   = "movie-recommendation-task"
   requires_compatibilities = ["FARGATE"]
@@ -105,6 +110,10 @@ resource "aws_ecs_task_definition" "movie_recommendation_task" {
   memory                   = 512
   execution_role_arn       = aws_iam_role.ecsTaskExecutionRole.arn
 
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "ARM64"
+  }
   container_definitions = jsonencode([
     {
       name      = "movie-rec"
@@ -116,6 +125,29 @@ resource "aws_ecs_task_definition" "movie_recommendation_task" {
           protocol      = "tcp"
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "/ecs/movie-recommendation"
+          "awslogs-region"        = "eu-north-1"
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
     }
-  ])
+])
+}
+
+# service
+resource "aws_ecs_service" "movie_recommendation_service" {
+  name            = "movie-rec-service"
+  cluster         = aws_ecs_cluster.movie_recommendation_cluster.id
+  task_definition = aws_ecs_task_definition.movie_recommendation_task.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = [aws_subnet.public.id]
+    security_groups  = [aws_security_group.movie_recommendation_sg.id]
+    assign_public_ip = true
+  }
 }
