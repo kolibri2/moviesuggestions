@@ -89,3 +89,33 @@ resource "aws_iam_role_policy_attachment" "ecsTaskExecutionRole_policy" {
   role       = aws_iam_role.ecsTaskExecutionRole.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
+
+
+# cluster
+
+resource "aws_ecs_cluster" "movie_recommendation_cluster" {
+  name = "movie-rec-cluster"
+}
+
+resource "aws_ecs_task_definition" "movie_recommendation_task" {
+  family                   = "movie-recommendation-task"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = 256
+  memory                   = 512
+  execution_role_arn       = aws_iam_role.ecsTaskExecutionRole.arn
+
+  container_definitions = jsonencode([
+    {
+      name      = "movie-rec"
+      image     = "${aws_ecr_repository.movie_rec_repo.repository_url}:latest"
+      essential = true
+      portMappings = [
+        {
+          containerPort = 8000
+          protocol      = "tcp"
+        }
+      ]
+    }
+  ])
+}
