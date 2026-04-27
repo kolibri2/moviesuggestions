@@ -190,7 +190,6 @@ Databases/*.db
 #terraform
 
 .terraform/
-*.tfstate
-*.tfstate.*
+.tfstate
 *.tfvars
 .terraform.lock.hcl  # debatable - see below
